@@ -1,6 +1,7 @@
 import httpx
 
-from web.factory import SearchResult, WebSearchProvider
+from .factory import SearchResult, WebSearchProvider
+
 
 class TavilyProvider(WebSearchProvider):
     BASE_URL = "https://api.tavily.com/search"
@@ -79,5 +80,3 @@ class SerpAPIProvider(WebSearchProvider):
                 )
                 for r in data.get("organic_results", [])
             ]
-
-

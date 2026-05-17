@@ -15,13 +15,13 @@ class WebSearchProvider(ABC):
         self.api_key = api_key
 
     @abstractmethod
-    async def search(self, query: str, max_results: int = 10) -> list[SearchResult]:
-        ...
+    async def search(self, query: str, max_results: int = 10) -> list[SearchResult]: ...
+
 
 class WebSearchProviderFactory:
     @classmethod
     def create(cls, provider_name: str, api_key: str) -> WebSearchProvider:
-        from web.provider import BraveProvider, SerpAPIProvider, TavilyProvider
+        from .provider import BraveProvider, SerpAPIProvider, TavilyProvider
 
         _providers: dict[str, type[WebSearchProvider]] = {
             "tavily": TavilyProvider,

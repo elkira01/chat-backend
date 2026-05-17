@@ -1,5 +1,4 @@
-import os
-from python_dotenv import dotenv_values
+from dotenv import dotenv_values
 
 config = dotenv_values(".env")
 
