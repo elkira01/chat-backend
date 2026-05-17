@@ -3,7 +3,7 @@ from typing import AsyncGenerator
 
 import httpx
 
-from .config import OLLAMA_BASE_URL, OLLAMA_MODEL
+from src.config import OLLAMA_BASE_URL, OLLAMA_MODEL
 
 
 async def generate_response(messages: list[dict], model: str = None) -> str:

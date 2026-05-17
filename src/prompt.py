@@ -1,5 +1,5 @@
-from .config import MAX_HISTORY_TURNS
-from .web.factory import SearchResult
+from src.config import MAX_HISTORY_TURNS
+from src.web.factory import SearchResult
 
 SYSTEM_MESSAGE_PLAIN = (
     "You are a helpful AI assistant. Answer the user's questions clearly and concisely."

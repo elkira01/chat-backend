@@ -1,6 +1,6 @@
 import httpx
 
-from .factory import SearchResult, WebSearchProvider
+from src.web.factory import SearchResult, WebSearchProvider
 
 
 class TavilyProvider(WebSearchProvider):

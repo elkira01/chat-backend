@@ -21,7 +21,7 @@ class WebSearchProvider(ABC):
 class WebSearchProviderFactory:
     @classmethod
     def create(cls, provider_name: str, api_key: str) -> WebSearchProvider:
-        from .provider import BraveProvider, SerpAPIProvider, TavilyProvider
+        from src.web.provider import BraveProvider, SerpAPIProvider, TavilyProvider
 
         _providers: dict[str, type[WebSearchProvider]] = {
             "tavily": TavilyProvider,

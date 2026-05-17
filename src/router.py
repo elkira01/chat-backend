@@ -1,10 +1,44 @@
+import logging
 import re
 
+from src.llm import generate_response
 
-def should_search_web(message: str) -> bool:
+logger = logging.getLogger(__name__)
+
+
+async def should_search_web(message: str) -> bool:
     """
-    Decide if web search is needed based on rule-based keywords.
+    Decide if web search is needed by asking the LLM (Strategy B).
+    Falls back to rule-based routing if the LLM request fails.
     """
+    system_prompt = (
+        "Reply SEARCH if this needs real-time web info, current events, "
+        "or facts that might change, otherwise reply ANSWER."
+    )
+
+    messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": message},
+    ]
+
+    try:
+        reply = await generate_response(messages)
+        reply_upper = reply.strip().upper()
+        # The model might output things like "SEARCH." or "ANSWER."
+        if "SEARCH" in reply_upper and "ANSWER" not in reply_upper:
+            return True
+        elif "ANSWER" in reply_upper and "SEARCH" not in reply_upper:
+            return False
+        # If the LLM generates a confusing answer, default to SEARCH if 'SEARCH' is in it
+        if "SEARCH" in reply_upper:
+            return True
+        return False
+    except Exception as e:
+        logger.error(f"LLM routing failed, falling back to rules: {e}")
+        return _rule_based_fallback(message)
+
+
+def _rule_based_fallback(message: str) -> bool:
     keywords = [
         "today",
         "now",

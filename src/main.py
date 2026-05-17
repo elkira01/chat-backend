@@ -1,6 +1,11 @@
 import json
 import logging
+import sys
+from pathlib import Path
 from typing import AsyncGenerator
+
+if __package__ is None or __package__ == "":
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import httpx
 from fastapi import FastAPI, HTTPException, Request
@@ -11,17 +16,17 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
 
-from .config import (
+from src.config import (
     ALLOWED_ORIGINS,
     MAX_SEARCH_RESULTS,
     OLLAMA_BASE_URL,
     WEB_SEARCH_API_KEY,
     WEB_SEARCH_PROVIDER,
 )
-from .llm import generate_response, stream_response
-from .prompt import build_augmented_messages, build_plain_messages
-from .router import should_search_web
-from .web.factory import SearchResult, WebSearchProviderFactory
+from src.llm import generate_response, stream_response
+from src.prompt import build_augmented_messages, build_plain_messages
+from src.router import should_search_web
+from src.web.factory import SearchResult, WebSearchProviderFactory
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -79,7 +84,7 @@ async def _process_chat_request(
         {"role": msg.role, "content": msg.content} for msg in request.history
     ]
 
-    use_search = should_search_web(request.message)
+    use_search = await should_search_web(request.message)
     sources = []
     messages = []
 
@@ -136,3 +141,9 @@ async def chat_stream(request: Request, chat_request: ChatRequest):
         yield "data: [DONE]\n\n"
 
     return StreamingResponse(sse_generator(), media_type="text/event-stream")
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run("src.main:app", host="127.0.0.1", port=8000, reload=False)
