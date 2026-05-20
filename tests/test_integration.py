@@ -74,9 +74,12 @@ def test_integration_chat_search():
     Test the full /chat flow WITH web search.
     This requires both Ollama and a real Search API key.
     """
-    payload = {"message": "What is the latest news today?", "history": []}
+    payload = {
+        "message": "What is the latest news today, on May 2th, 2026?",
+        "history": [],
+    }
     response = client.post("/chat", json=payload, timeout=30.0)
-    # assert response.status_code == 200
+    assert response.status_code == 200
 
     data = response.json()
     assert data["used_search"] is True

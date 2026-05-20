@@ -24,6 +24,8 @@ async def should_search_web(message: str) -> bool:
     try:
         reply = await generate_response(messages)
         reply_upper = reply.strip().upper()
+        logger.info(f"LLM reply: {reply_upper}")
+
         # The model might output things like "SEARCH." or "ANSWER."
         if "SEARCH" in reply_upper and "ANSWER" not in reply_upper:
             return True
@@ -55,6 +57,7 @@ def _rule_based_fallback(message: str) -> bool:
         "price of",
         "how many",
         "search for",
+        "i don't have",
     ]
 
     message_lower = message.lower()

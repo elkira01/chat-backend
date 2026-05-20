@@ -113,6 +113,9 @@ async def _process_chat_request(
 async def chat(request: Request, chat_request: ChatRequest):
     messages, sources, use_search = await _process_chat_request(chat_request)
 
+    # for msg in messages:
+    # logger.info(f"\n\nMessage: {msg}\n\n")
+
     try:
         reply = await generate_response(messages)
         return ChatResponse(reply=reply, sources=sources, used_search=use_search)
