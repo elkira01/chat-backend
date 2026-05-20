@@ -36,7 +36,9 @@ def test_chat_endpoint_plain(mocker):
     mocker.patch("src.main.should_search_web", return_value=False)
     mocker.patch("src.main.generate_response", return_value="Hello there")
 
-    response = client.post("/chat", json={"message": "hi", "history": []})
+    response = client.post(
+        "/chat", json={"message": "hi", "model": "llama", "history": []}
+    )
     assert response.status_code == 200
     assert response.json() == {
         "reply": "Hello there",
@@ -59,7 +61,9 @@ def test_chat_endpoint_search(mocker):
     mock_provider.search = mock_search
     mocker.patch("src.main.WebSearchProviderFactory.create", return_value=mock_provider)
 
-    response = client.post("/chat", json={"message": "news", "history": []})
+    response = client.post(
+        "/chat", json={"message": "news", "model": "llama", "history": []}
+    )
     assert response.status_code == 200
     assert response.json()["used_search"] == True
     assert response.json()["sources"] == ["http://example.com"]
@@ -74,7 +78,9 @@ def test_chat_endpoint_search_fallback(mocker):
     mock_provider.search = mocker.AsyncMock(side_effect=Exception("Search Error"))
     mocker.patch("src.main.WebSearchProviderFactory.create", return_value=mock_provider)
 
-    response = client.post("/chat", json={"message": "news", "history": []})
+    response = client.post(
+        "/chat", json={"message": "news", "model": "llama", "history": []}
+    )
     assert response.status_code == 200
     assert response.json()["used_search"] == False
     assert response.json()["sources"] == []
@@ -87,7 +93,9 @@ def test_chat_endpoint_generation_exception(mocker):
         "src.main.generate_response", side_effect=Exception("Generation failed")
     )
 
-    response = client.post("/chat", json={"message": "hi", "history": []})
+    response = client.post(
+        "/chat", json={"message": "hi", "model": "llama", "history": []}
+    )
     assert response.status_code == 500
     assert response.json() == {"detail": "Failed to generate response"}
 
@@ -95,13 +103,15 @@ def test_chat_endpoint_generation_exception(mocker):
 def test_chat_stream_endpoint(mocker):
     mocker.patch("src.main.should_search_web", return_value=False)
 
-    async def mock_stream_response(messages):
+    async def mock_stream_response(messages, model):
         yield "Hello"
         yield " World"
 
     mocker.patch("src.main.stream_response", side_effect=mock_stream_response)
 
-    response = client.post("/chat/stream", json={"message": "hi", "history": []})
+    response = client.post(
+        "/chat/stream", json={"message": "hi", "model": "llama", "history": []}
+    )
     assert response.status_code == 200
 
     content = response.text
@@ -114,13 +124,15 @@ def test_chat_stream_endpoint(mocker):
 def test_chat_stream_endpoint_exception(mocker):
     mocker.patch("src.main.should_search_web", return_value=False)
 
-    async def mock_stream_response_error(messages):
+    async def mock_stream_response_error(messages, model):
         yield "Hello"
         raise Exception("Stream error")
 
     mocker.patch("src.main.stream_response", side_effect=mock_stream_response_error)
 
-    response = client.post("/chat/stream", json={"message": "hi", "history": []})
+    response = client.post(
+        "/chat/stream", json={"message": "hi", "model": "llama", "history": []}
+    )
     assert response.status_code == 200
 
     content = response.text

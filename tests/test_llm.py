@@ -14,7 +14,7 @@ async def test_generate_response():
     respx.post(url).mock(return_value=httpx.Response(200, json=mock_resp))
 
     messages = [{"role": "user", "content": "hi"}]
-    reply = await generate_response(messages)
+    reply = await generate_response(messages, "llama3.2:1b")
     assert reply == "Hello World"
 
 
@@ -34,7 +34,7 @@ async def test_stream_response():
 
     messages = [{"role": "user", "content": "hi"}]
     chunks = []
-    async for chunk in stream_response(messages):
+    async for chunk in stream_response(messages, "llama3.2:1b"):
         chunks.append(chunk)
 
     assert "".join(chunks) == "Hello World"

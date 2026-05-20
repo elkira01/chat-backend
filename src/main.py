@@ -54,6 +54,7 @@ class Message(BaseModel):
 
 class ChatRequest(BaseModel):
     message: str
+    model: str
     history: list[Message] = []
 
 
@@ -117,7 +118,7 @@ async def chat(request: Request, chat_request: ChatRequest):
     # logger.info(f"\n\nMessage: {msg}\n\n")
 
     try:
-        reply = await generate_response(messages)
+        reply = await generate_response(messages, chat_request.model)
         return ChatResponse(reply=reply, sources=sources, used_search=use_search)
     except Exception as e:
         logger.error(f"LLM generation failed: {e}")
@@ -135,7 +136,7 @@ async def chat_stream(request: Request, chat_request: ChatRequest):
         yield f"data: {json.dumps({'meta': meta})}\n\n"
 
         try:
-            async for chunk in stream_response(messages):
+            async for chunk in stream_response(messages, chat_request.model):
                 yield f"data: {json.dumps({'chunk': chunk})}\n\n"
         except Exception as e:
             logger.error(f"LLM streaming failed: {e}")

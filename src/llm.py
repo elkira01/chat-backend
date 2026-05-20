@@ -3,13 +3,13 @@ from typing import AsyncGenerator
 
 import httpx
 
-from src.config import OLLAMA_BASE_URL, OLLAMA_MODEL
+from src.config import OLLAMA_BASE_URL
 
 
-async def generate_response(messages: list[dict], model: str = None) -> str:
+async def generate_response(messages: list[dict], model: str) -> str:
     """Standard non-streaming request to Ollama."""
     url = f"{OLLAMA_BASE_URL.rstrip('/')}/v1/chat/completions"
-    payload = {"model": model or OLLAMA_MODEL, "messages": messages, "stream": False}
+    payload = {"model": model, "messages": messages, "stream": False}
 
     async with httpx.AsyncClient(timeout=60.0) as client:
         response = await client.post(url, json=payload)
@@ -19,11 +19,11 @@ async def generate_response(messages: list[dict], model: str = None) -> str:
 
 
 async def stream_response(
-    messages: list[dict], model: str = None
+    messages: list[dict], model: str
 ) -> AsyncGenerator[str, None]:
     """Streaming request to Ollama."""
     url = f"{OLLAMA_BASE_URL.rstrip('/')}/v1/chat/completions"
-    payload = {"model": model or OLLAMA_MODEL, "messages": messages, "stream": True}
+    payload = {"model": model, "messages": messages, "stream": True}
 
     async with httpx.AsyncClient(timeout=60.0) as client:
         async with client.stream("POST", url, json=payload) as response:

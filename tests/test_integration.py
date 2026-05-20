@@ -4,8 +4,10 @@ import httpx
 import pytest
 from fastapi.testclient import TestClient
 
-from src.config import OLLAMA_BASE_URL, OLLAMA_MODEL, WEB_SEARCH_API_KEY
+from src.config import OLLAMA_BASE_URL, WEB_SEARCH_API_KEY
 from src.main import app
+
+OLLAMA_TEST_MODEL = os.getenv("OLLAMA_MODEL", "llama3.2:1b")
 
 client = TestClient(app)
 
@@ -17,7 +19,7 @@ def get_ollama_status():
         if response.status_code == 200:
             models = [m.get("name") for m in response.json().get("models", [])]
             # Strip tags for basic matching, or exact match if you want
-            model_exists = any(OLLAMA_MODEL in m for m in models)
+            model_exists = any(OLLAMA_TEST_MODEL in m for m in models)
             return True, model_exists
         return False, False
     except Exception:
@@ -44,7 +46,7 @@ def test_integration_health_check():
 
 @pytest.mark.skipif(
     not IS_OLLAMA_RUNNING or not HAS_MODEL,
-    reason=f"Ollama is not running, or model '{OLLAMA_MODEL}' is missing.",
+    reason=f"Ollama is not running, or model '{OLLAMA_TEST_MODEL}' is missing.",
 )
 def test_integration_chat_plain():
     """
@@ -53,6 +55,7 @@ def test_integration_chat_plain():
     """
     payload = {
         "message": "Say exactly the word 'PINEAPPLE' and nothing else.",
+        "model": OLLAMA_TEST_MODEL,
         "history": [],
     }
     response = client.post("/chat", json=payload, timeout=30.0)
@@ -76,6 +79,7 @@ def test_integration_chat_search():
     """
     payload = {
         "message": "What is the latest news today, on May 2th, 2026?",
+        "model": OLLAMA_TEST_MODEL,
         "history": [],
     }
     response = client.post("/chat", json=payload, timeout=30.0)
@@ -90,11 +94,15 @@ def test_integration_chat_search():
 
 @pytest.mark.skipif(
     not IS_OLLAMA_RUNNING or not HAS_MODEL,
-    reason=f"Ollama is not running, or model '{OLLAMA_MODEL}' is missing.",
+    reason=f"Ollama is not running, or model '{OLLAMA_TEST_MODEL}' is missing.",
 )
 def test_integration_chat_stream():
     """Test the streaming endpoint end-to-end."""
-    payload = {"message": "Write a 5 word sentence.", "history": []}
+    payload = {
+        "message": "Write a 5 word sentence.",
+        "model": OLLAMA_TEST_MODEL,
+        "history": [],
+    }
     with client.stream("POST", "/chat/stream", json=payload) as response:
         assert response.status_code == 200
 

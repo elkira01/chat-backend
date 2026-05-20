@@ -90,7 +90,6 @@ Llama 3 1B (Ollama     Web Search API
 | `SEARCH_API_KEY` | Tavily / Brave / SerpAPI key |
 | `SEARCH_PROVIDER` | e.g. `tavily` |
 | `OLLAMA_BASE_URL` | `http://localhost:11434` |
-| `OLLAMA_MODEL` | `llama3.2:1b` |
 | `MAX_SEARCH_RESULTS` | Recommended: `3` |
 | `MAX_HISTORY_TURNS` | Recommended: `5` |
 | `ALLOWED_ORIGINS` | Frontend domain (CORS) |
